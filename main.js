@@ -6,7 +6,6 @@ class Game {
   constructor() {
     this.display = new Display(10, 10);
     this.snake = new Snake(0, 5);
-    this.food = [[5, 5]];
     this.canChangeDirection = true;
     this.stuckTicks = 0;
     this.level = new Maze("./levels/level1.json");
@@ -24,25 +23,15 @@ class Game {
 
   checkFood() {
     const snakeHead = this.snake.head();
-    for (const food in this.food) {
+    for (const food in this.level.data["food"]) {
       if (
-        this.food[food][0] === snakeHead[0] &&
-        this.food[food][1] === snakeHead[1]
+        this.level.data["food"][food][0] === snakeHead[0] &&
+        this.level.data["food"][food][1] === snakeHead[1]
       ) {
         this.snake.addTail();
-        this.food.splice(food, 1);
-        this.food.push([
-          Math.floor(Math.random() * 10),
-          Math.floor(Math.random() * 10),
-        ]);
+        this.level.data["food"].splice(food, 1);
         break;
       }
-    }
-  }
-
-  drawFood() {
-    for (const food of this.food) {
-      this.display.draw(food[0], food[1], "red");
     }
   }
 
@@ -56,28 +45,40 @@ class Game {
     }
     switch (key.key) {
       case "w": {
-        if (this.snake.direction !== Direction.Down) {
+        if (
+          this.snake.direction !== Direction.Down &&
+          this.snake.direction !== Direction.Up
+        ) {
           this.snake.direction = Direction.Up;
         }
         this.canChangeDirection = false;
         break;
       }
       case "s": {
-        if (this.snake.direction !== Direction.Up) {
+        if (
+          this.snake.direction !== Direction.Up &&
+          this.snake.direction !== Direction.Down
+        ) {
           this.snake.direction = Direction.Down;
         }
         this.canChangeDirection = false;
         break;
       }
       case "a": {
-        if (this.snake.direction !== Direction.Right) {
+        if (
+          this.snake.direction !== Direction.Right &&
+          this.snake.direction !== Direction.Left
+        ) {
           this.snake.direction = Direction.Left;
         }
         this.canChangeDirection = false;
         break;
       }
       case "d": {
-        if (this.snake.direction !== Direction.Left) {
+        if (
+          this.snake.direction !== Direction.Left &&
+          this.snake.direction !== Direction.Right
+        ) {
           this.snake.direction = Direction.Right;
         }
         this.canChangeDirection = false;
@@ -87,20 +88,21 @@ class Game {
   }
 
   update() {
-    this.canChangeDirection = true;
+    /*
     if (this.stuckTicks >= 10) {
       console.log("ded");
       clearInterval(this.loopId);
     }
+    */
     if (!this.snake.move(10, 10, this.level)) {
       this.stuckTicks++;
+      this.canChangeDirection = true;
       return false;
     }
     this.checkFood();
     this.display.clear();
     this.level.draw(this.display);
     this.snake.draw(this.display);
-    this.drawFood();
     this.stuckTicks = 0;
     return true;
   }

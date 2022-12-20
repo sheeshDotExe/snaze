@@ -20,6 +20,10 @@ export class Maze {
       for (const coord of this.data["walls"]) {
         display.draw(coord[0], coord[1], "black");
       }
+
+      for (const coord of this.data["food"]) {
+        display.draw(coord[0], coord[1], "red");
+      }
     }
   }
 
