@@ -5,13 +5,15 @@ import { Snake, Direction } from "./snake.js";
 class Game {
   constructor() {
     this.display = new Display(10, 10);
-    this.snake = new Snake(0, 5);
+    this.snake = new Snake(0, 4);
     this.canChangeDirection = true;
     this.stuckTicks = 0;
     this.level = new Maze("./levels/level1.json");
     window.addEventListener("keydown", (event) => {
       this.setDirection(event);
     });
+
+    this.level.generateLevel();
   }
 
   run() {

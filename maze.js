@@ -1,10 +1,11 @@
+import { newMaze } from "./mazeBuilder.js";
 export class Maze {
   constructor(path) {
     this.loadData(path);
   }
 
   async loadData(path) {
-    this.data = await this.getData("./levels/level1.json").then((data) => {
+    this.Olddata = await this.getData("./levels/level1.json").then((data) => {
       return data;
     });
   }
@@ -13,6 +14,12 @@ export class Maze {
     const response = await fetch(path);
     const json = await response.json();
     return json;
+  }
+
+  generateLevel() {
+    let data = newMaze(["down", "right", "up", "left", "up"]);
+    data = newMaze(["left", "up", "right", "down", "left"]);
+    this.data = data;
   }
 
   draw(display) {
