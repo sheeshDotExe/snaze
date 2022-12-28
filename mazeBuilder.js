@@ -16,6 +16,13 @@ const FORCE_DIRECTION_VECTOR = {
   down: [0, -1],
 };
 
+const OPOSITE = {
+  left: "right",
+  right: "left",
+  up: "down",
+  down: "up",
+};
+
 // moves == ["down", "right", "up", "left", "up"]
 export function newMaze(moves, seed) {
   // chunk the moves
@@ -36,10 +43,10 @@ export function newMaze(moves, seed) {
 
   for (const room of rooms) {
     for (const wall of room.data["walls"]) {
-      data["walls"].push([wall[0] + 8, wall[1] + 5]);
+      data["walls"].push([wall[0] + 2, wall[1] + 5]);
     }
     for (const food of room.data["food"]) {
-      data["food"].push([food[0] + 8, food[1] + 5]);
+      data["food"].push([food[0] + 2, food[1] + 5]);
     }
   }
   return data;
@@ -70,8 +77,9 @@ function generateInputOutput(chunks) {
   let index = 1;
   for (const chunk of chunks) {
     const node = {};
+    // the extra must be odd or it creates multiple solutions
     const input = index + 1; // change for random input values
-    const output = input + 7; // change for longer nodes
+    const output = input + 1; // change for longer nodes
     index = output;
 
     node["input"] = input;
@@ -122,7 +130,11 @@ function chunkWhiteSpace(moves, horizontal, vertical) {
   };
 
   for (const move of moves.slice(0, moves.length - 1)) {
-    spaceCounter.push([move, chunkObj[move]]);
+    let length = chunkObj[move];
+    if (chunkObj[OPOSITE[move]] === Infinity) {
+      length += 1;
+    }
+    spaceCounter.push([move, length]);
   }
 
   return spaceCounter;
@@ -143,7 +155,7 @@ class Node {
     this.moveCounts = countMoves(moves);
 
     this.inputDirection = moves[0];
-    this.outputDirection = moves[this.mLength];
+    this.outputDirection = moves[this.mLength - 1];
 
     this.delta = outputSize - inputSize; // number of food needed to reach desired size
 
@@ -153,7 +165,7 @@ class Node {
 
     this.startCoord = [1, 0]; // change for dynamic rooms
 
-    if (this.outputDirection == this.inputDirection) {
+    if (OPOSITE[this.outputDirection] === this.inputDirection) {
       // static room
       this.outCoord = this.startCoord;
       this.sameOutput = true;
@@ -201,7 +213,6 @@ class Node {
       //distribute remaining space to vertical and horizontal space
       minHorizontalSpace += spaceLeft;
     }
-
     // split the space into chunks
     console.log(this.moves);
     const moveSpace = chunkWhiteSpace(
@@ -224,20 +235,18 @@ class Node {
     let yCoord = this.startCoord[1];
 
     // add walls around start
-    console.log(this.moves);
-    if (this.moves[0] === "down") {
+
+    if (this.moves[0] === "down" || this.moves[0] === "up") {
       localRoomData["walls"].push([this.startCoord[0] - 1, this.startCoord[1]]);
       localRoomData["walls"].push([this.startCoord[0] + 1, this.startCoord[1]]);
-
-      // eligal
-      localRoomData["walls"].push([
-        this.startCoord[0] + 1,
-        this.startCoord[1] - 1,
-      ]);
-      console.log([this.startCoord[0] - 1, this.startCoord[1]]);
+    } else if (this.moves[0] === "left" || this.moves[0] === "right") {
+      localRoomData["walls"].push([this.startCoord[0], this.startCoord[1] - 1]);
+      localRoomData["walls"].push([this.startCoord[0], this.startCoord[1] + 1]);
     }
 
+    let index = 0;
     for (const move of moveSpace) {
+      index++;
       const moveType = move[0];
       if (overlap) {
         const directionVector = FORCE_DIRECTION_VECTOR[moveType];
@@ -259,6 +268,22 @@ class Node {
         }
       }
 
+      if (!this.sameOutput && index === moveSpace.length) {
+        for (let i = 0; i < 2; i++) {
+          xCoord += moveVector[0];
+          yCoord += moveVector[1];
+        } // 2 is min value to avoid the wall
+
+        console.log(
+          MOVE_TO_VECTOR[this.outputDirection][0],
+          minHorizontalSpace
+        );
+        this.outCoord = [
+          (MOVE_TO_VECTOR[this.outputDirection][0] * minHorizontalSpace) / 2,
+          moveVector[1] * yCoord,
+        ];
+      }
+
       localRoomData["walls"].push([
         xCoord + moveVector[0],
         yCoord + moveVector[1],
@@ -266,9 +291,18 @@ class Node {
 
       if (!overlap) overlap = true;
     }
+    if (
+      countMoves(this.moves)[OPOSITE[this.moves[this.moves.length - 2]]] === 0
+    ) {
+      const moveVector =
+        FORCE_DIRECTION_VECTOR[this.moves[this.moves.length - 1]];
+      localRoomData["walls"].push([
+        xCoord + moveVector[0],
+        yCoord + moveVector[1],
+      ]); // stop the movement in the last dirrection if its not forced yet
+    }
 
-    console.log(localRoomData["walls"]);
-
+    console.log(this.startCoord, this.outCoord);
     return localRoomData;
   }
 }

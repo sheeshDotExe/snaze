@@ -45,7 +45,7 @@ class Game {
     if (!this.canChangeDirection) {
       return;
     }
-    switch (key.key) {
+    switch (key.key.toLowerCase()) {
       case "w": {
         if (
           this.snake.direction !== Direction.Down &&
