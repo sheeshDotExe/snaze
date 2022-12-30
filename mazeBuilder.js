@@ -301,8 +301,9 @@ class Node {
         xCoord + moveVector[0],
         yCoord + moveVector[1],
       ]); // stop the movement in the last dirrection if its not forced yet
+
+      this.outCoord = [xCoord, yCoord];
     }
-    this.outCoord = [xCoord, yCoord];
 
     console.log(this.startCoord, this.outCoord);
     return localRoomData;

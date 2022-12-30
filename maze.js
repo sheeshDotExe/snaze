@@ -18,7 +18,7 @@ export class Maze {
 
   generateLevel() {
     let data = newMaze(["down", "right", "up", "left", "up"]);
-    data = newMaze(["left", "up", "right", "up", "right"]);
+    data = newMaze(["left", "up", "left", "down", "right"]);
     this.data = data;
   }
 
