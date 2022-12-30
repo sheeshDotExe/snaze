@@ -41,7 +41,7 @@ export function newMaze(moves, seed) {
   */
   const data = { walls: [], food: [] };
 
-  let delta = 7;
+  let delta = 8;
 
   for (const room of rooms) {
     for (const wall of room.data["walls"]) {
@@ -142,6 +142,7 @@ function chunkWhiteSpace(moves, horizontal, vertical) {
     }
     spaceCounter.push([move, length]);
   }
+  console.log(spaceCounter);
 
   return spaceCounter;
 }
@@ -194,7 +195,8 @@ class Node {
     const whitespace = this.outputSize + 1; // number of tiles the snake must move between the exit point
 
     let minHorizontalSpace =
-      Math.max(this.moveCounts["left"], this.moveCounts["right"]) * 2; // times 2 so it can get back to its original position
+      Math.max(this.moveCounts["left"], this.moveCounts["right"]) * 2 +
+      Math.max(this.moveCounts["left"], this.moveCounts["right"]); // times 2 so it can get back to its original position
 
     if (this.moves[0] === "down" || this.moves[0] === "up") {
       minHorizontalSpace += 2; // make space to move left/right
