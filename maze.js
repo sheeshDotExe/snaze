@@ -18,7 +18,7 @@ export class Maze {
 
   generateLevel() {
     let data = newMaze(["down", "right", "up", "left", "up"]);
-    //data = newMaze(["left", "up", "right", "up", "right"]);
+    data = newMaze(["left", "up", "right", "up", "right"]);
     this.data = data;
   }
 
@@ -30,6 +30,10 @@ export class Maze {
 
       for (const coord of this.data["food"]) {
         display.draw(coord[0], coord[1], "red");
+      }
+
+      for (const coord of this.data["marker"]) {
+        display.draw(coord[0], coord[1], "blue");
       }
     }
   }

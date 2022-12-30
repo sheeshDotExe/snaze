@@ -41,13 +41,19 @@ export function newMaze(moves, seed) {
   */
   const data = { walls: [], food: [] };
 
+  let delta = 7;
+
   for (const room of rooms) {
     for (const wall of room.data["walls"]) {
-      data["walls"].push([wall[0] + 2, wall[1] + 5]);
+      data["walls"].push([wall[0] + delta, wall[1] + 5]);
     }
     for (const food of room.data["food"]) {
-      data["food"].push([food[0] + 2, food[1] + 5]);
+      data["food"].push([food[0] + delta, food[1] + 5]);
     }
+    data["marker"] = [
+      [room.startCoord[0] + delta, room.startCoord[1] + 5],
+      [room.outCoord[0] + delta, room.outCoord[1] + 5],
+    ];
   }
   return data;
 
@@ -273,11 +279,6 @@ class Node {
           xCoord += moveVector[0];
           yCoord += moveVector[1];
         } // 2 is min value to avoid the wall
-
-        console.log(
-          MOVE_TO_VECTOR[this.outputDirection][0],
-          minHorizontalSpace
-        );
         this.outCoord = [
           (MOVE_TO_VECTOR[this.outputDirection][0] * minHorizontalSpace) / 2,
           moveVector[1] * yCoord,
@@ -301,6 +302,7 @@ class Node {
         yCoord + moveVector[1],
       ]); // stop the movement in the last dirrection if its not forced yet
     }
+    this.outCoord = [xCoord, yCoord];
 
     console.log(this.startCoord, this.outCoord);
     return localRoomData;
